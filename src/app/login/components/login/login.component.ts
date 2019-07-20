@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { ErrorService } from 'src/app/core/services/error.service';
+import { takeWhile } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
@@ -17,9 +19,11 @@ export class LoginComponent implements OnInit {
   }
 
   private nameControl = new FormControl('', [Validators.required, Validators.minLength(5)])
+  private alive =  true;
 
   constructor(
     private authService: AuthService,
+    private errorService: ErrorService,
     private formBuilder: FormBuilder
   ) { }
 
@@ -42,9 +46,11 @@ export class LoginComponent implements OnInit {
         ? this.authService.signinUser(this.loginForm.value)
         : this.authService.signupUser(this.loginForm.value);
 
-    operation.subscribe(res => {
+    operation.pipe(takeWhile(() => this.alive))
+    .subscribe(res => {
       console.log('redirecting...', res);
-    })
+    },
+    err => console.log(this.errorService.getErrorMessage(err)))
   }
 
   changeAction(): void {
