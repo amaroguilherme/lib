@@ -25,7 +25,7 @@ export class LoginComponent implements OnInit {
   private alive =  true;
 
   constructor(
-    private authService: AuthService,
+    public authService: AuthService,
     private errorService: ErrorService,
     private formBuilder: FormBuilder,
     private snackBar: MatSnackBar
@@ -56,7 +56,7 @@ export class LoginComponent implements OnInit {
     .subscribe(res => {
       console.log('redirecting...', res);
       const redirect: string = this.authService.redirectUrl || '/dashboard';
-      //TO DO: redirect with router logic
+      // TO DO: redirect with router logic
       this.authService.redirectUrl = null;
       this.configs.isLoading = false;
     },
@@ -67,6 +67,9 @@ export class LoginComponent implements OnInit {
     })
   }
 
+  onKeepSigned(): void {
+    this.authService.toggleKeepSigned();
+  }
   changeAction(): void {
     this.configs.isLogin = !this.configs.isLogin;
     this.configs.actionText = !this.configs.isLogin ? 'SignUp' : 'SignIn';
