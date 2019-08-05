@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule, MatToolbarModule, MatFormFieldModule, MatInputModule,
-  MatButtonModule, MatSnackBarModule, MatProgressSpinnerModule, MatSlideToggleModule } from '@angular/material';
+  MatButtonModule, MatSnackBarModule, MatProgressSpinnerModule, MatSlideToggleModule,
+  MatListModule, MatIconModule, MatLineModule } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
@@ -10,7 +11,10 @@ import { ReactiveFormsModule } from '@angular/forms';
     MatButtonModule,
     MatCardModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
+    MatLineModule,
+    MatListModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatSlideToggleModule,

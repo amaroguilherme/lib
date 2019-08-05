@@ -5,6 +5,7 @@ import { ErrorService } from 'src/app/core/services/error.service';
 import { takeWhile } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material';
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -28,6 +29,7 @@ export class LoginComponent implements OnInit {
     public authService: AuthService,
     private errorService: ErrorService,
     private formBuilder: FormBuilder,
+    private router : Router,
     private snackBar: MatSnackBar
   ) { }
 
@@ -54,9 +56,10 @@ export class LoginComponent implements OnInit {
 
     operation.pipe(takeWhile(() => this.alive))
     .subscribe(res => {
-      console.log('redirecting...', res);
       const redirect: string = this.authService.redirectUrl || '/dashboard';
       // TO DO: redirect with router logic
+      console.log('redirecting...', redirect);
+      this.router.navigate([redirect]);
       this.authService.redirectUrl = null;
       this.configs.isLoading = false;
     },
