@@ -4,6 +4,7 @@ import { Observable, ReplaySubject, throwError, of } from 'rxjs';
 import { AUTHENTICATE_USER_MUTATION, SIGNUP_USER_MUTATION, LoggedInUserQuery, LOGGED_IN_USER_QUERY } from './auth.graphql';
 import { map, tap, catchError, mergeMap } from 'rxjs/operators';
 import { StorageKeys } from 'src/app/storage-keys';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,8 @@ export class AuthService {
   private _isAuthenticated = new ReplaySubject<boolean>(1);
 
   constructor(
-    private apollo: Apollo
+    private apollo: Apollo,
+    private router: Router
   ) {
     this.isAuthenticated.subscribe(is => console.log('AuthState', is));
     this.init();
@@ -61,6 +63,14 @@ export class AuthService {
     window.localStorage.setItem(StorageKeys.KEEP_SIGNED, this.keepSigned.toString());
   }
 
+  logout(): void {
+    window.localStorage.removeItem(StorageKeys.AUTH_TOKEN);
+    window.localStorage.removeItem(StorageKeys.KEEP_SIGNED);
+    this.keepSigned = false;
+    this._isAuthenticated.next(false);
+    this.router.navigate(['/login']);
+    this.apollo.getClient().resetStore();
+  }
   autoLogin(): Observable<void> {
     if (!this.keepSigned) {
       this._isAuthenticated.next(false);
