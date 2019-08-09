@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { MatSidenav } from '@angular/material';
 
 @Component({
   selector: 'app-dashboard-header',
@@ -7,6 +8,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
   styleUrls: ['./dashboard-header.component.scss']
 })
 export class DashboardHeaderComponent implements OnInit {
+
+  @Input() sidenav: MatSidenav;
 
   constructor(
     private authService: AuthService
