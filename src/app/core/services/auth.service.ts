@@ -5,12 +5,14 @@ import { AUTHENTICATE_USER_MUTATION, SIGNUP_USER_MUTATION, LoggedInUserQuery, LO
 import { map, tap, catchError, mergeMap } from 'rxjs/operators';
 import { StorageKeys } from 'src/app/storage-keys';
 import { Router } from '@angular/router';
+import { User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
+  authUser: User;
   redirectUrl: string;
   keepSigned: boolean;
   private _isAuthenticated = new ReplaySubject<boolean>(1);
@@ -36,9 +38,9 @@ export class AuthService {
       variables
     }).pipe(
       map(res => res.data.authenticateUser),
-      tap(res => this.setAuthState({token: res && res.token, isAuthenticated: res !== null})),
+      tap(res => this.setAuthState({id: res && res.id, token: res && res.token, isAuthenticated: res !== null})),
       catchError(error => {
-        this.setAuthState({token: null, isAuthenticated: false});
+        this.setAuthState({id: null, token: null, isAuthenticated: false});
         return throwError(error);
       })
     );
@@ -50,9 +52,9 @@ export class AuthService {
       variables
     }).pipe(
       map(res => res.data.signupUser),
-      tap(res => this.setAuthState({token: res && res.token, isAuthenticated: res !== null})),
+      tap(res => this.setAuthState({id: res && res.id, token: res && res.token, isAuthenticated: res !== null})),
       catchError(error => {
-        this.setAuthState({token: null, isAuthenticated: false});
+        this.setAuthState({id: null, token: null, isAuthenticated: false});
         return throwError(error);
       })
     );
@@ -80,11 +82,11 @@ export class AuthService {
 
     return this.validateToken().pipe(tap(authData => {
       const token = window.localStorage.getItem(StorageKeys.AUTH_TOKEN);
-      this.setAuthState({token, isAuthenticated: authData.isAuthenticated});
+      this.setAuthState({id: authData.id, token, isAuthenticated: authData.isAuthenticated});
     }),
     mergeMap(res => of()),
     catchError(error => {
-      this.setAuthState({token: null, isAuthenticated: false});
+      this.setAuthState({id: null, token: null, isAuthenticated: false});
       return throwError(error);
     })
     );
@@ -102,9 +104,10 @@ export class AuthService {
         )
   }
 
-  private setAuthState(AuthData: {token: string, isAuthenticated: boolean}): void {
+  private setAuthState(AuthData: {id: string, token: string, isAuthenticated: boolean}): void {
     if (AuthData.isAuthenticated) {
       window.localStorage.setItem(StorageKeys.AUTH_TOKEN, AuthData.token);
+      this.authUser = { id: AuthData.id };
     }
     this._isAuthenticated.next(AuthData.isAuthenticated);
   }
