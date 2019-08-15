@@ -4,8 +4,11 @@ import { MatCardModule, MatToolbarModule, MatFormFieldModule, MatInputModule,
   MatButtonModule, MatSnackBarModule, MatProgressSpinnerModule, MatSlideToggleModule,
   MatListModule, MatIconModule, MatLineModule, MatSidenavModule, MatTabsModule } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
+import { NoRecordComponent } from './components/no-record/no-record.component';
 
 @NgModule({
+  declarations: [NoRecordComponent],
+  imports: [MatIconModule],
   exports: [
     CommonModule,
     MatButtonModule,
@@ -21,6 +24,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     MatSlideToggleModule,
     MatTabsModule,
     MatToolbarModule,
+    NoRecordComponent,
     ReactiveFormsModule
   ]
 })
