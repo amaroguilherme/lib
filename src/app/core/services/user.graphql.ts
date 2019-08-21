@@ -4,6 +4,9 @@ import gql from 'graphql-tag';
 export interface AllUsersQuery {
   allUsers: User[];
 }
+export interface UserQuery {
+  User: User;
+}
 
 export const ALL_USERS_QUERY =  gql `
   query AllUsersQuery($idToExclude: ID!) {
@@ -16,6 +19,17 @@ export const ALL_USERS_QUERY =  gql `
       id
       name
       email
+    }
+  }
+`;
+
+export const GET_USER_BY_ID_QUERY = gql `
+  query GetUserByIdQuery($userID: ID!) {
+    User(id: $userID) {
+      id
+      name
+      email
+      createdAt
     }
   }
 `;
