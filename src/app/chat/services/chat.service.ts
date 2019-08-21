@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { ChatModule } from '../chat.module';
 import { Apollo } from 'apollo-angular';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Observable } from 'rxjs';
@@ -8,7 +7,7 @@ import { map } from 'rxjs/operators';
 import { Chat } from '../models/chat.model';
 
 @Injectable({
-  providedIn: ChatModule
+  providedIn: 'root'
 })
 export class ChatService {
 
