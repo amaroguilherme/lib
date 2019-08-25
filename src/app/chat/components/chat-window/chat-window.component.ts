@@ -1,8 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Chat } from '../../models/chat.model';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { map, mergeMap, tap } from 'rxjs/operators';
+import { map, mergeMap, tap, take } from 'rxjs/operators';
+import { Message } from '../../models/message.model';
+import { MessageService } from '../../services/message.service';
+import { Title } from '@angular/platform-browser';
+import { UserService } from 'src/app/core/services/user.service';
+import { User } from 'src/app/core/models/user.model';
 
 @Component({
   selector: 'app-chat-window',
@@ -12,11 +17,15 @@ import { map, mergeMap, tap } from 'rxjs/operators';
 export class ChatWindowComponent implements OnInit, OnDestroy {
 
   chat: Chat;
+  messages$: Observable<Message[]>;
   recipientId: string = null;
   private subscriptions: Subscription[] = [];
 
   constructor(
-    private route: ActivatedRoute
+    private messageService: MessageService,
+    private route: ActivatedRoute,
+    private title: Title,
+    private userService: UserService
   ) { }
 
   ngOnInit() {
@@ -25,6 +34,10 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
       mergeMap(() => this.route.paramMap), tap((params: ParamMap) => {
         if (!this.chat) {
           this.recipientId = params.get('id');
+          this.userService.getUserById(this.recipientId).pipe(take(1)).subscribe((user: User) => this.title.setTitle(user.name));
+        } else {
+          this.title.setTitle(this.chat.title || this.chat.users[0].name);
+          this.messages$ = this.messageService.getMessages(this.chat.id);
         }
       })).subscribe()
     );
