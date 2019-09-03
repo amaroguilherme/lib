@@ -5,6 +5,7 @@
       <a mat-list-item [routerLink]="[chat.id]" *ngFor="let chat of chats">
         <img matListAvatar src="assets/images/user-no-photo.png" [title]="getChatTitle(chat)">
         <h3 matLine>{{getChatTitle(chat)}}</h3>
+        <p matLine>{{getLastMessage(chat)}}</p>
       </a>
     </ng-container>
   </ng-container>

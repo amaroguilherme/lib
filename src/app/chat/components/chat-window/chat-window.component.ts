@@ -9,6 +9,7 @@ import { Title } from '@angular/platform-browser';
 import { UserService } from 'src/app/core/services/user.service';
 import { User } from 'src/app/core/models/user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { ChatService } from '../../services/chat.service';
 
 @Component({
   selector: 'app-chat-window',
@@ -25,6 +26,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
+    private chatService: ChatService,
     private messageService: MessageService,
     private route: ActivatedRoute,
     private title: Title,
@@ -49,13 +51,25 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   sendMessage(): void {
     this.newMessage = this.newMessage.trim();
     if (this.newMessage) {
+      if (this.chat){
       this.messageService.createMessage({
         text: this.newMessage,
         chatId: this.chat.id,
         senderId: this.authService.authUser.id
-      }).subscribe();
+      }).pipe(take(1)).subscribe();
       this.newMessage = ''
+    } else {
+      this.createPrivateChat();
     }
+    }
+  }
+
+  private createPrivateChat(): void {
+    this.chatService.createPrivateChat(this.recipientId)
+      .pipe(take(1), tap((chat: Chat) => {
+        this.chat = chat;
+        this.sendMessage();
+      })).subscribe();
   }
 
   ngOnDestroy() {

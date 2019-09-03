@@ -30,8 +30,8 @@ export class ChatService {
       query: CHAT_BY_ID_OR_USERS_QUERY,
       variables: {
         chatId: chatOrUserId,
-        loggedUserId: this.authService.authUser.id,
-        targetUserId: chatOrUserId
+        loggedUserID: this.authService.authUser.id,
+        targetUserID: chatOrUserId
       }
     }).pipe(map(res => (res.data['Chat']) ? res.data['Chat'] : res.data['allChats'][0]));
   }
