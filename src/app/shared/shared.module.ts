@@ -5,11 +5,14 @@ import { MatCardModule, MatToolbarModule, MatFormFieldModule, MatInputModule,
   MatListModule, MatIconModule, MatLineModule, MatSidenavModule, MatTabsModule } from '@angular/material';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NoRecordComponent } from './components/no-record/no-record.component';
+import { AvatarComponent } from './components/avatar/avatar.component';
 
 @NgModule({
-  declarations: [NoRecordComponent],
-  imports: [MatIconModule],
+  declarations: [NoRecordComponent, AvatarComponent],
+  imports: [CommonModule,
+            MatIconModule],
   exports: [
+    AvatarComponent,
     CommonModule,
     FormsModule,
     MatButtonModule,
