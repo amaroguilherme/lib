@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { AllMessagesQuery, GET_MESSAGES_QUERY, CREATE_MESSAGE_MUTATION } from './message.graphql';
 import { map } from 'rxjs/operators';
 import { Message } from '../models/message.model';
+import { DataProxy } from 'apollo-cache';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,20 @@ export class MessageService {
   createMessage(message: {text: string, chatId: string, senderId: string}): Observable<Message>{
     return this.apollo.mutate({
       mutation: CREATE_MESSAGE_MUTATION,
-      variables: message
+      variables: message,
+      update: (store: DataProxy, {data: {createMessage}}) => {
+        const data = store.readQuery<AllMessagesQuery>({
+          query: GET_MESSAGES_QUERY,
+          variables: {chatId: message.chatId}
+        });
+        data.allMessages = [...data.allMessages, createMessage];
+
+        store.writeQuery({
+          query: GET_MESSAGES_QUERY,
+          variables: {chatId: message.chatId},
+          data
+        });
+      }
     }).pipe(map(res => res.data.createMessage));
   }
 }
