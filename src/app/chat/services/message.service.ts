@@ -47,17 +47,19 @@ export class MessageService {
         }
       },
       update: (store: DataProxy, {data: {createMessage}}) => {
-        const data = store.readQuery<AllMessagesQuery>({
-          query: GET_MESSAGES_QUERY,
-          variables: {chatId: message.chatId}
-        });
-        data.allMessages = [...data.allMessages, createMessage];
+        try {
+          const data = store.readQuery<AllMessagesQuery>({
+            query: GET_MESSAGES_QUERY,
+            variables: {chatId: message.chatId}
+          });
+          data.allMessages = [...data.allMessages, createMessage];
+          store.writeQuery({
+            query: GET_MESSAGES_QUERY,
+            variables: {chatId: message.chatId},
+            data
+          });
+        } catch (e) {}
 
-        store.writeQuery({
-          query: GET_MESSAGES_QUERY,
-          variables: {chatId: message.chatId},
-          data
-        });
       }
     }).pipe(map(res => res.data.createMessage));
   }

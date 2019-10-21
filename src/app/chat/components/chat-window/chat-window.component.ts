@@ -22,6 +22,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   messages$: Observable<Message[]>;
   newMessage= '';
   recipientId: string = null;
+  alreadyLoadedMessages = false;
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -44,6 +45,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
         } else {
           this.title.setTitle(this.chat.title || this.chat.users[0].name);
           this.messages$ = this.messageService.getMessages(this.chat.id);
+          this.alreadyLoadedMessages = true;
         }
       })).subscribe()
     );
@@ -53,16 +55,25 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
     this.newMessage = this.newMessage.trim();
     if (this.newMessage) {
       if (this.chat){
-      this.messageService.createMessage({
-        text: this.newMessage,
-        chatId: this.chat.id,
-        senderId: this.authService.authUser.id
-      }).pipe(take(1)).subscribe();
+      this.createMessage().pipe(take(1)).subscribe();
       this.newMessage = ''
     } else {
       this.createPrivateChat();
     }
     }
+  }
+
+  private createMessage(): Observable<Message> {
+    return this.messageService.createMessage({
+      text: this.newMessage,
+      chatId: this.chat.id,
+      senderId: this.authService.authUser.id
+    }).pipe(tap(message => {
+      if (!this.alreadyLoadedMessages) {
+        this.messages$ = this.messageService.getMessages(this.chat.id);
+        this.alreadyLoadedMessages = true;
+      }
+    }))
   }
 
   private createPrivateChat(): void {
