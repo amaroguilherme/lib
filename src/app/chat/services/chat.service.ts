@@ -18,12 +18,12 @@ export class ChatService {
   ) { }
 
   getUserChats(): Observable<Chat[]> {
-    return this.apollo.query<AllChatsQuery>({
+    return this.apollo.watchQuery<AllChatsQuery>({
       query: USER_CHATS_QUERY,
       variables: {
         userId: this.authService.authUser.id
       }
-    }).pipe(map(res => res.data.allChats),
+    }).valueChanges.pipe(map(res => res.data.allChats),
             map((chats: Chat[]) => {
               const chatsToSort = chats.slice();
               return chatsToSort.sort((a, b) => {
@@ -55,10 +55,22 @@ export class ChatService {
         targetUserId
       },
       update: (store: DataProxy, {data: {createChat}}) => {
+        const userChatsVariables = {userId: this.authService.authUser.id};
+        const userChatsData = store.readQuery<AllChatsQuery>({
+          query: USER_CHATS_QUERY,
+          variables: userChatsVariables
+        });
+        userChatsData.allChats = [createChat, ...userChatsData.allChats];
+        store.writeQuery({
+          query: USER_CHATS_QUERY,
+          variables: userChatsVariables,
+          data: userChatsData
+        });
+
         const variables = {
           chatId: targetUserId,
-          loggedUserId: this.authService.authUser.id,
-          targetUserId
+          loggedUserID: this.authService.authUser.id,
+          targetUserID: targetUserId
         };
         const data = store.readQuery<AllChatsQuery>({
           query: CHAT_BY_ID_OR_USERS_QUERY,
