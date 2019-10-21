@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { AllChatsQuery, USER_CHATS_QUERY, ChatQuery, CHAT_BY_ID_OR_USERS_QUERY, CREATE_PRIVATE_CHAT_MUTATION } from './chat.graphql';
 import { map } from 'rxjs/operators';
 import { Chat } from '../models/chat.model';
+import { DataProxy } from 'apollo-cache';
 
 @Injectable({
   providedIn: 'root'
@@ -52,6 +53,24 @@ export class ChatService {
       variables: {
         loggedUserId: this.authService.authUser.id,
         targetUserId
+      },
+      update: (store: DataProxy, {data: {createChat}}) => {
+        const variables = {
+          chatId: targetUserId,
+          loggedUserId: this.authService.authUser.id,
+          targetUserId
+        };
+        const data = store.readQuery<AllChatsQuery>({
+          query: CHAT_BY_ID_OR_USERS_QUERY,
+          variables
+        });
+        data.allChats = [createChat];
+
+        store.writeQuery({
+          query: CHAT_BY_ID_OR_USERS_QUERY,
+          variables,
+          data
+        });
       }
     }).pipe(map(res => res.data.createChat));
   }
