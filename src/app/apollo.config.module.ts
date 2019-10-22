@@ -3,6 +3,7 @@ import { HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { Apollo, ApolloModule } from 'apollo-angular';
 import { HttpLink, HttpLinkModule } from 'apollo-angular-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
+import { persistCache } from 'apollo-cache-persist';
 import { onError } from 'apollo-link-error';
 import { ApolloLink } from 'apollo-link';
 import { StorageKeys } from './storage-keys';
@@ -49,13 +50,20 @@ export class ApolloConfigModule {
     }
   });
 
-    apollo.create({
-      link: ApolloLink.from([
-        linkError,
-        authMiddleware.concat(http)
-      ]),
-      cache: new InMemoryCache()
-    });
+  const cache = new InMemoryCache();
+
+  persistCache({
+    cache,
+    storage: window.localStorage,
+  });
+
+  apollo.create({
+    link: ApolloLink.from([
+      linkError,
+      authMiddleware.concat(http)
+    ]),
+    cache
+  });
   }
 
   private getAuthToken(): string {
