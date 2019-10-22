@@ -12,10 +12,17 @@ import { DataProxy } from 'apollo-cache';
 })
 export class ChatService {
 
+  chats$: Observable<Chat[]>;
+
   constructor(
     private apollo: Apollo,
     private authService: AuthService
   ) { }
+
+  startChatsMonitoring(): void {
+    this.chats$ = this.getUserChats();
+    this.chats$.subscribe();
+  }
 
   getUserChats(): Observable<Chat[]> {
     return this.apollo.watchQuery<AllChatsQuery>({

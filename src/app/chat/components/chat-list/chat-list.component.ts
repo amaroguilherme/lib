@@ -19,7 +19,7 @@ export class ChatListComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.chats$ = this.chatService.getUserChats();
+    this.chats$ = this.chatService.chats$;
   }
 
   getChatTitle(chat: Chat): string {
