@@ -5,6 +5,8 @@ import { AllMessagesQuery, GET_MESSAGES_QUERY, CREATE_MESSAGE_MUTATION } from '.
 import { map } from 'rxjs/operators';
 import { Message } from '../models/message.model';
 import { DataProxy } from 'apollo-cache';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { AllChatsQuery, USER_CHATS_QUERY } from './chat.graphql';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +14,8 @@ import { DataProxy } from 'apollo-cache';
 export class MessageService {
 
   constructor(
-    private apollo: Apollo
+    private apollo: Apollo,
+    private authService: AuthService
   ) { }
 
   getMessages(chatId: string): Observable<Message[]> {
@@ -58,6 +61,33 @@ export class MessageService {
             variables: {chatId: message.chatId},
             data
           });
+        } catch (e) {}
+
+        try {
+          const userChatsVariables = {userId: this.authService.authUser.id};
+
+          const userChatsData = store.readQuery<AllChatsQuery>({
+            query: USER_CHATS_QUERY,
+            variables: userChatsVariables
+          });
+
+          const newUserChatsList = [...userChatsData.allChats];
+
+          newUserChatsList.map(c => {
+            if (c.id === createMessage.chat.id) {
+              c.messages = [createMessage];
+            }
+            return c;
+          });
+
+          userChatsData.allChats = newUserChatsList;
+
+          store.writeQuery({
+            query: USER_CHATS_QUERY,
+            variables: userChatsVariables,
+            data: userChatsData
+          });
+
         } catch (e) {}
 
       }
