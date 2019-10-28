@@ -5,9 +5,11 @@ import { HttpLink, HttpLinkModule } from 'apollo-angular-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { persistCache } from 'apollo-cache-persist';
 import { onError } from 'apollo-link-error';
-import { ApolloLink } from 'apollo-link';
+import { ApolloLink, Operation } from 'apollo-link';
 import { StorageKeys } from './storage-keys';
 import { GRAPHCOOL_CONFIG, GraphcoolConfig } from './core/providers/graphcool-config.provider';
+import { WebSocketLink } from 'apollo-link-ws';
+import { getOperationAST } from 'graphql';
 
 @NgModule({
   imports: [
@@ -50,6 +52,14 @@ export class ApolloConfigModule {
     }
   });
 
+  const ws = new WebSocketLink({
+    uri: this.graphcoolConfig.subscriptionsAPI,
+    options: {
+      reconnect: true,
+      timeout: 30000
+    }
+  });
+
   const cache = new InMemoryCache();
 
   persistCache({
@@ -60,7 +70,13 @@ export class ApolloConfigModule {
   apollo.create({
     link: ApolloLink.from([
       linkError,
-      authMiddleware.concat(http)
+      ApolloLink.split( (operation: Operation) => {
+        const operationAST = getOperationAST(operation.query, operation.operationName);
+        return !!operationAST && operationAST.operation === 'subscription';
+      },
+        ws,
+        authMiddleware.concat(http)
+      )
     ]),
     cache
   });
