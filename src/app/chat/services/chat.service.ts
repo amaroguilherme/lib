@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Apollo } from 'apollo-angular';
+import { Apollo, QueryRef } from 'apollo-angular';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Observable, Subscription } from 'rxjs';
 import { AllChatsQuery, USER_CHATS_QUERY, ChatQuery, CHAT_BY_ID_OR_USERS_QUERY, CREATE_PRIVATE_CHAT_MUTATION } from './chat.graphql';
@@ -7,6 +7,8 @@ import { map } from 'rxjs/operators';
 import { Chat } from '../models/chat.model';
 import { DataProxy } from 'apollo-cache';
 import { Router, RouterEvent, NavigationEnd } from '@angular/router';
+import { USER_MESSAGES_SUBSCRIPTION } from './message.graphql';
+import { Message } from '../models/message.model';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +17,7 @@ export class ChatService {
 
   chats$: Observable<Chat[]>;
   private subscriptions: Subscription[] = [];
+  private queryRef: QueryRef<AllChatsQuery>;
 
   constructor(
     private apollo: Apollo,
@@ -33,21 +36,43 @@ export class ChatService {
   }
 
   getUserChats(): Observable<Chat[]> {
-    return this.apollo.watchQuery<AllChatsQuery>({
+    this.queryRef = this.apollo.watchQuery<AllChatsQuery>({
       query: USER_CHATS_QUERY,
       variables: {
         userId: this.authService.authUser.id
       }
-    }).valueChanges.pipe(map(res => res.data.allChats),
-            map((chats: Chat[]) => {
-              const chatsToSort = chats.slice();
-              return chatsToSort.sort((a, b) => {
-                const valueA = (a.messages.length > 0) ? new Date(a.messages[0].createdAt).getTime() : new Date(a.createdAt).getTime();
-                const valueB = (b.messages.length > 0) ? new Date(b.messages[0].createdAt).getTime() : new Date(b.createdAt).getTime();
+    });
 
-                return valueB - valueA;
-              })
-            })
+    this.queryRef.subscribeToMore({
+      document: USER_MESSAGES_SUBSCRIPTION,
+      variables: { loggedUserId: this.authService.authUser.id },
+      updateQuery: (previous, { subscriptionData }) => {
+        const newMessage: Message = subscriptionData.data.Message.node;
+        const chatToUpdateIndex: number = (previous.allChats) ? previous.allChats.findIndex(chat => chat.id === newMessage.chat.id) : -1;
+
+        if (chatToUpdateIndex > -1) {
+          const newAllChats = [...previous.allChats];
+          const chatToUpdate: Chat = Object.assign({}, newAllChats[chatToUpdateIndex]);
+          chatToUpdate.messages = [newMessage];
+          newAllChats[chatToUpdateIndex] = chatToUpdate;
+          return {
+            ...previous, allChats: newAllChats
+          };
+        }
+        return previous;
+      }
+    });
+
+    return this.queryRef.valueChanges.pipe(map(res => res.data.allChats),
+      map((chats: Chat[]) => {
+        const chatsToSort = chats.slice();
+        return chatsToSort.sort((a, b) => {
+          const valueA = (a.messages.length > 0) ? new Date(a.messages[0].createdAt).getTime() : new Date(a.createdAt).getTime();
+          const valueB = (b.messages.length > 0) ? new Date(b.messages[0].createdAt).getTime() : new Date(b.createdAt).getTime();
+
+          return valueB - valueA;
+        })
+      })
     );
   }
 
