@@ -10,6 +10,7 @@ import { StorageKeys } from './storage-keys';
 import { GRAPHCOOL_CONFIG, GraphcoolConfig } from './core/providers/graphcool-config.provider';
 import { WebSocketLink } from 'apollo-link-ws';
 import { getOperationAST } from 'graphql';
+import { SubscriptionClient } from 'subscriptions-transport-ws';
 
 @NgModule({
   imports: [
@@ -19,6 +20,8 @@ import { getOperationAST } from 'graphql';
   ]
 })
 export class ApolloConfigModule {
+
+  private subscriptionClient: SubscriptionClient;
 
   constructor(
     private apollo: Apollo,
@@ -57,13 +60,11 @@ export class ApolloConfigModule {
     options: {
       reconnect: true,
       timeout: 30000,
-      connectionParams: () => {
-        return {
-          'Authorization': `Bearer ${this.getAuthToken()}`
-        };
-      }
+      connectionParams: () => ({'Authorization': `Bearer ${this.getAuthToken()}`})
     }
   });
+
+  this.subscriptionClient = (<any>ws).subscriptionClient;
 
   const cache = new InMemoryCache();
 
@@ -85,6 +86,10 @@ export class ApolloConfigModule {
     ]),
     cache
   });
+  }
+
+  closeWebSocketConnection(): void {
+    this.subscriptionClient.close(true, true);
   }
 
   private getAuthToken(): string {
