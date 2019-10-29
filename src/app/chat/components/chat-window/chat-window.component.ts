@@ -35,6 +35,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.chatService.startChatsMonitoring();
     this.subscriptions.push(
       this.route.data.pipe(map(routeData => this.chat = routeData.chat),
       mergeMap(() => this.route.paramMap), tap((params: ParamMap) => {
