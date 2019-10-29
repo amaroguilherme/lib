@@ -7,7 +7,7 @@ import { map } from 'rxjs/operators';
 import { Chat } from '../models/chat.model';
 import { DataProxy } from 'apollo-cache';
 import { Router, RouterEvent, NavigationEnd } from '@angular/router';
-import { USER_MESSAGES_SUBSCRIPTION } from './message.graphql';
+import { USER_MESSAGES_SUBSCRIPTION, AllMessagesQuery, GET_MESSAGES_QUERY } from './message.graphql';
 import { Message } from '../models/message.model';
 
 @Injectable({
@@ -48,6 +48,26 @@ export class ChatService {
       variables: { loggedUserId: this.authService.authUser.id },
       updateQuery: (previous, { subscriptionData }) => {
         const newMessage: Message = subscriptionData.data.Message.node;
+
+        try {
+          if (newMessage.sender.id !== this.authService.authUser.id) {
+            const apolloClient = this.apollo.getClient();
+            const chatMessagesVariables = { chatId: newMessage.chat.id };
+            const chatMessagesData = apolloClient.readQuery<AllMessagesQuery>({
+              query: GET_MESSAGES_QUERY,
+              variables: chatMessagesVariables
+            });
+
+            chatMessagesData.allMessages = [...chatMessagesData.allMessages, newMessage];
+
+            apolloClient.writeQuery({
+              query: GET_MESSAGES_QUERY,
+              variables: chatMessagesVariables,
+              data: chatMessagesData
+            });
+          }
+        } catch (e) {}
+
         const chatToUpdateIndex: number = (previous.allChats) ? previous.allChats.findIndex(chat => chat.id === newMessage.chat.id) : -1;
 
         if (chatToUpdateIndex > -1) {
