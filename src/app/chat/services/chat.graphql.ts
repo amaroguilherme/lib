@@ -9,6 +9,42 @@ export interface ChatQuery {
   Chat: Chat;
 }
 
+const ChatFragment = gql`
+  fragment ChatFragment on Chat {
+    id
+    title
+    createdAt
+    isGroup
+    users(
+      first: 1,
+      filter: {
+        id_not: $loggedUserId
+      }
+    ) {
+      id
+      name
+      email
+      createdAt
+    }
+  }
+`;
+
+const ChatMessagesFragment = gql`
+  fragment ChatMessagesFragment on Chat {
+    messages(
+      last: 1
+    ) {
+      id
+      createdAt
+      text
+      sender {
+        id
+        name
+      }
+    }
+  }
+`;
+
 export const USER_CHATS_QUERY = gql `
   query UserChatsQuery($userId: ID!) {
     allChats(
@@ -133,4 +169,27 @@ export const CREATE_PRIVATE_CHAT_MUTATION = gql`
       }
     }
   }
+`;
+
+export const USER_CHATS_SUBSCRIPTION = gql`
+  subscription UserChatsSubscription($loggedUserId: ID!) {
+    Chat(
+      filter: {
+        mutation_in: [CREATED, UPDATED],
+        node: {
+          users_some: {
+            id: $loggedUserId
+          }
+        }
+      }
+    ) {
+      mutation
+      node {
+        ...ChatFragment
+        ...ChatMessagesFragment
+      }
+    }
+  }
+  ${ChatFragment}
+  ${ChatMessagesFragment}
 `;
