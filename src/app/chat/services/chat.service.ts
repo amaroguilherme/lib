@@ -9,6 +9,7 @@ import { DataProxy } from 'apollo-cache';
 import { Router, RouterEvent, NavigationEnd } from '@angular/router';
 import { USER_MESSAGES_SUBSCRIPTION, AllMessagesQuery, GET_MESSAGES_QUERY } from './message.graphql';
 import { Message } from '../models/message.model';
+import { UserService } from 'src/app/core/services/user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +23,8 @@ export class ChatService {
   constructor(
     private apollo: Apollo,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private userService: UserService
   ) { }
 
   startChatsMonitoring(): void {
@@ -32,6 +34,7 @@ export class ChatService {
       this.router.events.subscribe((event: RouterEvent) => {
         if (event instanceof NavigationEnd && !this.router.url.includes('chat')) {
           this.onDestroy();
+          this.userService.stopUsersMonitoring();
         }
       });
     }
