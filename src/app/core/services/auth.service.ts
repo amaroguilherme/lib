@@ -105,8 +105,9 @@ export class AuthService {
               id: user && user.id,
               isAuthenticated: user !== null
             };
-          })
-        )
+          }),
+          mergeMap(authData => (authData.isAuthenticated) ? of(authData) : throwError(new Error('Invalid Token!')))
+        );
   }
 
   private setAuthState(AuthData: {id: string, token: string, isAuthenticated: boolean}, isRefresh: boolean = false): void {
