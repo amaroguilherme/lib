@@ -3,7 +3,7 @@ import { HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { Apollo, ApolloModule } from 'apollo-angular';
 import { HttpLink, HttpLinkModule } from 'apollo-angular-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-import { persistCache } from 'apollo-cache-persist';
+import { persistCache, CachePersistor } from 'apollo-cache-persist';
 import { onError } from 'apollo-link-error';
 import { ApolloLink, Operation } from 'apollo-link';
 import { StorageKeys } from './storage-keys';
@@ -21,6 +21,7 @@ import { SubscriptionClient } from 'subscriptions-transport-ws';
 })
 export class ApolloConfigModule {
 
+  cachePersistor: CachePersistor<any>;
   private subscriptionClient: SubscriptionClient;
 
   constructor(
@@ -68,7 +69,7 @@ export class ApolloConfigModule {
 
   const cache = new InMemoryCache();
 
-  persistCache({
+  this.cachePersistor = new CachePersistor({
     cache,
     storage: window.localStorage,
   });
