@@ -45,7 +45,8 @@ export class ChatService {
       query: USER_CHATS_QUERY,
       variables: {
         userId: this.authService.authUser.id
-      }
+      },
+      fetchPolicy: 'network-only'
     });
 
     this.queryRef.subscribeToMore({
