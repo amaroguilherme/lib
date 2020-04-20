@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from 'src/app/core/models/user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { UserService } from 'src/app/core/services/user.service';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user-profile',
@@ -13,7 +15,8 @@ export class UserProfileComponent implements OnInit {
   isEditing = false;
 
   constructor(
-    private authService: AuthService
+    private authService: AuthService,
+    private userService: UserService
   ) { }
 
   ngOnInit() {
@@ -21,7 +24,7 @@ export class UserProfileComponent implements OnInit {
   }
 
   onSave() {
-
+    this.userService.updateUser(this.user).pipe(take(1)).subscribe((User: User) => {})
   }
 
 }
