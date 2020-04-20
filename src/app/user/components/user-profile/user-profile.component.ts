@@ -10,6 +10,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 export class UserProfileComponent implements OnInit {
 
   user: User;
+  isEditing = false;
 
   constructor(
     private authService: AuthService
