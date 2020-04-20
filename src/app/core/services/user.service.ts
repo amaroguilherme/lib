@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Apollo, QueryRef } from 'apollo-angular';
 import { Observable, Subscription } from 'rxjs';
 import { User } from '../models/user.model';
-import { AllUsersQuery, ALL_USERS_QUERY, UserQuery, GET_USER_BY_ID_QUERY, NEW_USERS_SUBSCRIPTION } from './user.graphql';
+import { AllUsersQuery, ALL_USERS_QUERY, UserQuery, GET_USER_BY_ID_QUERY, NEW_USERS_SUBSCRIPTION, UPDATE_USER_MUTATION } from './user.graphql';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -68,5 +68,16 @@ export class UserService {
       query: GET_USER_BY_ID_QUERY,
       variables: { userId: id }
     }).pipe(map(res => res.data.User));
+  }
+
+  updateUser(user: User): Observable<User> {
+    return this.apollo.mutate({
+      mutation: UPDATE_USER_MUTATION,
+      variables: {
+        id: user.id,
+        name: user.name,
+        email: user.email
+      }
+    }).pipe(map(res => res.data.updateUser ));
   }
 }
