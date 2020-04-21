@@ -6,11 +6,13 @@ import { MatCardModule, MatToolbarModule, MatFormFieldModule, MatInputModule,
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NoRecordComponent } from './components/no-record/no-record.component';
 import { AvatarComponent } from './components/avatar/avatar.component';
+import { ImagePreviewComponent } from './components/image-preview/image-preview.component';
 
 @NgModule({
-  declarations: [NoRecordComponent, AvatarComponent],
+  declarations: [NoRecordComponent, AvatarComponent, ImagePreviewComponent],
   imports: [CommonModule,
-            MatIconModule],
+            MatIconModule,
+            MatCardModule, MatToolbarModule],
   exports: [
     AvatarComponent,
     CommonModule,
@@ -29,7 +31,8 @@ import { AvatarComponent } from './components/avatar/avatar.component';
     MatTabsModule,
     MatToolbarModule,
     NoRecordComponent,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    ImagePreviewComponent
   ]
 })
 export class SharedModule { }
