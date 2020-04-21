@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule, MatToolbarModule, MatFormFieldModule, MatInputModule,
   MatButtonModule, MatSnackBarModule, MatProgressSpinnerModule, MatSlideToggleModule,
-  MatListModule, MatIconModule, MatLineModule, MatSidenavModule, MatTabsModule } from '@angular/material';
+  MatListModule, MatIconModule, MatLineModule, MatSidenavModule, MatTabsModule, MatDialogModule } from '@angular/material';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NoRecordComponent } from './components/no-record/no-record.component';
 import { AvatarComponent } from './components/avatar/avatar.component';
@@ -12,7 +12,10 @@ import { ImagePreviewComponent } from './components/image-preview/image-preview.
   declarations: [NoRecordComponent, AvatarComponent, ImagePreviewComponent],
   imports: [CommonModule,
             MatIconModule,
-            MatCardModule, MatToolbarModule],
+            MatCardModule, MatToolbarModule, MatButtonModule, MatDialogModule],
+  entryComponents: [
+    ImagePreviewComponent
+  ],
   exports: [
     AvatarComponent,
     CommonModule,
@@ -32,7 +35,8 @@ import { ImagePreviewComponent } from './components/image-preview/image-preview.
     MatToolbarModule,
     NoRecordComponent,
     ReactiveFormsModule,
-    ImagePreviewComponent
+    ImagePreviewComponent,
+    MatDialogModule
   ]
 })
 export class SharedModule { }
