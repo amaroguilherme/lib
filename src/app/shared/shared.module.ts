@@ -7,9 +7,10 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NoRecordComponent } from './components/no-record/no-record.component';
 import { AvatarComponent } from './components/avatar/avatar.component';
 import { ImagePreviewComponent } from './components/image-preview/image-preview.component';
+import { ReadFilePipe } from './pipes/read-file.pipe';
 
 @NgModule({
-  declarations: [NoRecordComponent, AvatarComponent, ImagePreviewComponent],
+  declarations: [NoRecordComponent, AvatarComponent, ImagePreviewComponent, ReadFilePipe],
   imports: [CommonModule,
             MatIconModule,
             MatCardModule, MatToolbarModule, MatButtonModule, MatDialogModule],
@@ -36,7 +37,8 @@ import { ImagePreviewComponent } from './components/image-preview/image-preview.
     NoRecordComponent,
     ReactiveFormsModule,
     ImagePreviewComponent,
-    MatDialogModule
+    MatDialogModule,
+    ReadFilePipe
   ]
 })
 export class SharedModule { }
