@@ -1,5 +1,6 @@
 import { User } from '../models/user.model';
 import gql from 'graphql-tag';
+import { FileFragment } from './file.graphql';
 
 export interface AllUsersQuery {
   allUsers: User[];
@@ -14,7 +15,11 @@ const UserFragment = gql`
     name
     email
     createdAt
+    photo {
+      ...FileFragment
+    }
   }
+  ${FileFragment}
 `;
 
 export const ALL_USERS_QUERY =  gql `
@@ -53,11 +58,42 @@ export const UPDATE_USER_MUTATION = gql `
   ${UserFragment}
 `;
 
+const updateUserPhotoMutation = `
+  updateUser(id: $loggedUserId, photoId: $newPhotoId) {
+    ...USerFragment
+  }
+`;
+
+const deleteFileMutation = `
+  deleteFile(id: $oldPhotoId) {
+    id
+    secret
+  }
+`;
+
+export const getUpdateUserPhotoMutation = (hasOldPhoto: boolean) => {
+  if (hasOldPhoto) {
+    return gql `
+      mutation UpdateAndDeleteUserPhoto($loggedUserId: ID!, $newPhotoId: ID!, $oldPhotoId: ID!) {
+        ${updateUserPhotoMutation}
+        ${deleteFileMutation}
+      }
+      ${UserFragment}
+    `;
+  }
+  return gql `
+      mutation UpdateUserPhoto($loggedUserId: ID!, $newPhotoId: ID!) {
+        ${updateUserPhotoMutation}
+      }
+      ${UserFragment}
+    `;
+}
+
 export const NEW_USERS_SUBSCRIPTION = gql`
   subscription NewUsersSubscription {
     User(
       filter: {
-        mutation_in: [CREATED]
+        mutation_in: [CREATED, UPDATED]
       }
     ) {
       mutation
