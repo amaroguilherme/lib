@@ -62,7 +62,8 @@ export class UserService {
     });
 
     return this.queryRef.valueChanges.pipe(
-      map(res => res.data.allUsers)
+      map(res => res.data.allUsers),
+      map(users => users.map(u => new User(u)))
     );
   }
 
@@ -70,7 +71,8 @@ export class UserService {
     return this.apollo.query<UserQuery>({
       query: GET_USER_BY_ID_QUERY,
       variables: { userId: id }
-    }).pipe(map(res => res.data.User));
+    }).pipe(map(res => res.data.User),
+            map(user => new User(user)));
   }
 
   updateUser(user: User): Observable<User> {

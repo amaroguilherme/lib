@@ -7,6 +7,7 @@ import { Message } from '../models/message.model';
 import { DataProxy } from 'apollo-cache';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { AllChatsQuery, USER_CHATS_QUERY } from './chat.graphql';
+import { User } from 'src/app/core/models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +24,12 @@ export class MessageService {
       query: GET_MESSAGES_QUERY,
       variables: { chatId },
       fetchPolicy: 'network-only'
-    }).valueChanges.pipe(map(res => res.data.allMessages));
+    }).valueChanges.pipe(map(res => res.data.allMessages),
+                        map(messages => messages.map(m => {
+                          const message = Object.assign({}, m);
+                          message.sender = new User(message.sender);
+                          return message;
+                        })));
   }
 
   createMessage(message: {text: string, chatId: string, senderId: string}): Observable<Message>{

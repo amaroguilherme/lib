@@ -28,7 +28,7 @@ export class UserProfileComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.user = JSON.parse(JSON.stringify(this.authService.authUser));
+    this.user = this.authService.authUser;
   }
 
   triggerInputFile(input: HTMLInputElement) {
