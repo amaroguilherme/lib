@@ -42,6 +42,21 @@ export class UserProfileComponent implements OnInit {
        { data: { image: file }, panelClass: 'mat-dialog-no-padding', maxHeight: '80vh' });
     dialogRef.afterClosed().pipe(take(1)).subscribe(dialogData => {
       input.value = '';
+      if (dialogData && dialogData.canSave) {
+        this.isLoading = true;
+        let message;
+        this.userService.updateUserPhoto(dialogData.selectedImage, this.authService.authUser).pipe(take(1)).subscribe(
+          (user: User) => {
+            message = 'Profile Updated!';
+            this.authService.authUser.photo = user.photo;
+          },
+          error => message = this.errorService.getErrorMessage(error),
+          () => {
+            this.isLoading = false;
+            this.showMessage(message);
+          }
+        )
+      }
     });
   }
 
@@ -57,8 +72,12 @@ export class UserProfileComponent implements OnInit {
     },
     () => {
       this.isLoading = false;
-      this.snackBar.open(message, 'OK', { duration: 3000, verticalPosition: 'top' })
+      this.showMessage(message);
     })
+  }
+
+  private showMessage(message: string) {
+    this.snackBar.open(message, 'OK', { duration: 3000, verticalPosition: 'top' })
   }
 
 }
